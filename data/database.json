@@ -1,0 +1,237 @@
+{
+  "settings": {
+    "peronName": "POOL TBS KARYA MAJU",
+    "pksPartner": "PT. Sawit Makmur Perkasa",
+    "dokumenId": "SOP-TBS-2026/01",
+    "alamat": "Jl. Poros Perkebunan Sawit KM 14, Riau",
+    "telepon": "0812-7654-3210",
+    "defaultHargaBeli": 2450,
+    "defaultHargaDO": 2780,
+    "pphRate": 0.0025,
+    "targetSusutMax": 2.5
+  },
+  "farmers": [
+    {
+      "id": "F-001",
+      "name": "Pak Budi",
+      "phone": "0813-1122-3344",
+      "location": "Blok A Sawit Rejo",
+      "kasbon": 0,
+      "totalKasbonHistory": 500000
+    },
+    {
+      "id": "F-002",
+      "name": "Poktan Jaya",
+      "phone": "0821-4455-6677",
+      "location": "Desa Karya Maju (Kelompok Tani)",
+      "kasbon": 0,
+      "totalKasbonHistory": 0
+    },
+    {
+      "id": "F-003",
+      "name": "Pak Syamsul",
+      "phone": "0852-9988-7766",
+      "location": "Simpang Kiri KM 8",
+      "kasbon": 1300000,
+      "totalKasbonHistory": 1500000
+    },
+    {
+      "id": "F-004",
+      "name": "Pak Joko",
+      "phone": "0812-7711-2233",
+      "location": "Blok C Perkebunan",
+      "kasbon": 250000,
+      "totalKasbonHistory": 250000
+    }
+  ],
+  "purchases": [
+    {
+      "id": "BUY-20261120-001",
+      "date": "2026-11-20",
+      "nota": "TB-20261120-001",
+      "farmerId": "F-001",
+      "farmerName": "Pak Budi",
+      "vehicleNo": "BM 9876 AA",
+      "bruto": 3450,
+      "tara": 1950,
+      "netto": 1500,
+      "potPercent": 3.0,
+      "nBayar": 1455,
+      "hargaBeli": 2450,
+      "total": 3564750,
+      "potKasbon": 500000,
+      "bayarBersih": 3064750,
+      "catatan": "TBS Matang 95%, tangkai pendek"
+    },
+    {
+      "id": "BUY-20261120-002",
+      "date": "2026-11-20",
+      "nota": "TB-20261120-002",
+      "farmerId": "F-002",
+      "farmerName": "Poktan Jaya",
+      "vehicleNo": "BM 8890 CD",
+      "bruto": 8200,
+      "tara": 2400,
+      "netto": 5800,
+      "potPercent": 2.0,
+      "nBayar": 5684,
+      "hargaBeli": 2470,
+      "total": 14039480,
+      "potKasbon": 0,
+      "bayarBersih": 14039480,
+      "catatan": "Kualitas super, buah besar"
+    },
+    {
+      "id": "BUY-20261120-003",
+      "date": "2026-11-20",
+      "nota": "TB-20261120-003",
+      "farmerId": "F-003",
+      "farmerName": "Pak Syamsul",
+      "vehicleNo": "BM 7721 KL",
+      "bruto": 2980,
+      "tara": 1880,
+      "netto": 1100,
+      "potPercent": 4.0,
+      "nBayar": 1056,
+      "hargaBeli": 2450,
+      "total": 2587200,
+      "potKasbon": 200000,
+      "bayarBersih": 2387200,
+      "catatan": "Ada tangkai panjang sedikit"
+    }
+  ],
+  "sales": [
+    {
+      "id": "SALE-20261120-001",
+      "date": "2026-11-20",
+      "ticketNo": "PKS-08911",
+      "policeNo": "BM 8123 XX",
+      "driverName": "Anto",
+      "nettoLapak": 8500,
+      "nettoPKS": 8350,
+      "refraksiPercent": 2.0,
+      "nCair": 8183,
+      "hargaDO": 2780,
+      "gross": 22748740,
+      "pph22": 56872,
+      "netCair": 22691868,
+      "status": "Cair",
+      "cairDate": "2026-11-20",
+      "pksDestination": "PT. Sawit Makmur Perkasa"
+    },
+    {
+      "id": "SALE-20261120-002",
+      "date": "2026-11-20",
+      "ticketNo": "PKS-08945",
+      "policeNo": "BK 9044 YZ",
+      "driverName": "Herman",
+      "nettoLapak": 9300,
+      "nettoPKS": 9120,
+      "refraksiPercent": 2.5,
+      "nCair": 8892,
+      "hargaDO": 2780,
+      "gross": 24719760,
+      "pph22": 61799,
+      "netCair": 24657961,
+      "status": "Pending",
+      "cairDate": null,
+      "pksDestination": "PT. Sawit Makmur Perkasa"
+    }
+  ],
+  "cashJournals": [
+    {
+      "id": "JRN-20261120-001",
+      "date": "2026-11-20",
+      "description": "Saldo Awal Kas Lapak & Bank",
+      "category": "Modal Kerja",
+      "account": "Kas Lapak & Bank",
+      "inflow": 50000000,
+      "outflow": 0,
+      "lapakInflow": 25000000,
+      "lapakOutflow": 0,
+      "bankInflow": 25000000,
+      "bankOutflow": 0,
+      "refId": "INIT"
+    },
+    {
+      "id": "JRN-20261120-002",
+      "date": "2026-11-20",
+      "description": "Pembelian TBS Pak Budi (Nettelah Kasbon)",
+      "category": "Pembelian TBS",
+      "account": "Kas Laci Lapak",
+      "inflow": 0,
+      "outflow": 3064750,
+      "lapakInflow": 0,
+      "lapakOutflow": 3064750,
+      "bankInflow": 0,
+      "bankOutflow": 0,
+      "refId": "BUY-20261120-001"
+    },
+    {
+      "id": "JRN-20261120-003",
+      "date": "2026-11-20",
+      "description": "Uang Jalan Sopir & Muat Truk BM 8123 XX",
+      "category": "Biaya Angkut",
+      "account": "Kas Laci Lapak",
+      "inflow": 0,
+      "outflow": 750000,
+      "lapakInflow": 0,
+      "lapakOutflow": 750000,
+      "bankInflow": 0,
+      "bankOutflow": 0,
+      "refId": "EXP-TRUCK-001"
+    },
+    {
+      "id": "JRN-20261120-004",
+      "date": "2026-11-20",
+      "description": "Pencairan Tiket PKS-08911 (Net PPh 22)",
+      "category": "Penjualan PKS",
+      "account": "Kas Bank PKS",
+      "inflow": 22691868,
+      "outflow": 0,
+      "lapakInflow": 0,
+      "lapakOutflow": 0,
+      "bankInflow": 22691868,
+      "bankOutflow": 0,
+      "refId": "SALE-20261120-001"
+    }
+  ],
+  "kasbonLogs": [
+    {
+      "id": "KB-20261110-001",
+      "date": "2026-11-10",
+      "farmerId": "F-001",
+      "farmerName": "Pak Budi",
+      "type": "Pinjaman",
+      "amount": 500000,
+      "notes": "Kasbon beli pupuk NPK"
+    },
+    {
+      "id": "KB-20261115-001",
+      "date": "2026-11-15",
+      "farmerId": "F-003",
+      "farmerName": "Pak Syamsul",
+      "type": "Pinjaman",
+      "amount": 1500000,
+      "notes": "Pinjaman operasional panen & dodos"
+    },
+    {
+      "id": "KB-20261120-001",
+      "date": "2026-11-20",
+      "farmerId": "F-001",
+      "farmerName": "Pak Budi",
+      "type": "Potongan Timbang",
+      "amount": 500000,
+      "notes": "Potong timbang BUY-20261120-001 (Lunas)"
+    },
+    {
+      "id": "KB-20261120-002",
+      "date": "2026-11-20",
+      "farmerId": "F-003",
+      "farmerName": "Pak Syamsul",
+      "type": "Potongan Timbang",
+      "amount": 200000,
+      "notes": "Potong timbang BUY-20261120-003 (Sisa Rp 1.300.000)"
+    }
+  ]
+}

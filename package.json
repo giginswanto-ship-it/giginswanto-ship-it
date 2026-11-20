@@ -1,0 +1,12 @@
+{
+  "name": "pool-tbs-karya-maju",
+  "version": "1.0.0",
+  "description": "Sistem Pencatatan Keuangan & Stok TBS Terintegrasi - Standard Operating Procedure SOP-TBS-2026/01",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": ["sawit", "tbs", "peron", "keuangan", "sop"],
+  "author": "Karya Maju",
+  "license": "ISC"
+}

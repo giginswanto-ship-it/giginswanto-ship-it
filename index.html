@@ -1,0 +1,1194 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistem Pencatatan Keuangan & Stok TBS - POOL TBS KARYA MAJU</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- APP HEADER -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand-section">
+        <div class="brand-logo-icon">🌴</div>
+        <div>
+          <div class="brand-title" id="headerPeronName">POOL TBS KARYA MAJU</div>
+          <div class="brand-subtitle">
+            <span>Sistem Operasional & Keuangan TBS Sawit Terpadu</span>
+            <span class="badge-sop" id="headerDocId">SOP-TBS-2026/01</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="header-status-bar">
+        <div class="header-stat-box">
+          <div class="label">Kas Laci Lapak (Tunai)</div>
+          <div class="val" id="headerKasLapak">Rp 0</div>
+        </div>
+        <div class="header-stat-box">
+          <div class="label">Kas Rekening Bank PKS</div>
+          <div class="val" id="headerKasBank">Rp 0</div>
+        </div>
+        <div class="header-stat-box">
+          <div class="label">Stok Restan Lapak</div>
+          <div class="val" id="headerRestan">0 kg</div>
+        </div>
+        <button class="btn-header-sync" id="btnSyncServer" title="Sinkronisasi Data">
+          <span>🔄</span> <span id="syncStatusText">Tersinkron</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- NAVIGATION TABS -->
+  <nav class="nav-bar">
+    <div class="nav-container">
+      <button class="nav-tab active" data-tab="tab-dashboard">
+        <span>📊</span> Dashboard & Ringkasan
+      </button>
+      <button class="nav-tab" data-tab="tab-pembelian">
+        <span>🚜</span> Modul 1: Pembelian Petani
+      </button>
+      <button class="nav-tab" data-tab="tab-penjualan">
+        <span>🏭</span> Modul 2: Penjualan PKS
+      </button>
+      <button class="nav-tab" data-tab="tab-jurnal">
+        <span>💰</span> Modul 3: Jurnal Kas & Operasional
+      </button>
+      <button class="nav-tab" data-tab="tab-analisis">
+        <span>⚖️</span> Evaluasi Susut & Margin
+      </button>
+      <button class="nav-tab" data-tab="tab-kasbon">
+        <span>👥</span> Pengendalian Kasbon
+      </button>
+      <button class="nav-tab" data-tab="tab-laporan">
+        <span>📑</span> Laporan & Rekapitulasi
+      </button>
+      <button class="nav-tab" data-tab="tab-pengaturan">
+        <span>⚙️</span> Profil & Pengaturan
+      </button>
+    </div>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-wrapper">
+
+    <!-- SOP PRINCIPLES ALERT BANNER -->
+    <div class="sop-banner">
+      <h4>📌 PRINSIP UTAMA PENCATATAN USAHA PERON TBS (SOP-TBS-2026/01)</h4>
+      <p>
+        Usaha perdagangan TBS memiliki 3 risiko kebocoran kas: <strong>(1) Potongan sortasi lapak vs PKS</strong>, <strong>(2) Susut tonase pengangkutan</strong>, dan <strong>(3) Pengendalian kasbon petani</strong>.
+        <br>
+        <span class="highlight-rule">Aturan Baku Arus Uang & Barang:</span> Pembayaran petani dilakukan secara tunai/harian berdasarkan <strong>Netto Bayar Lapak</strong>, sedangkan penerimaan dari PKS berbasis transfer rekening sesuai <strong>Netto Cair PKS</strong> (setelah refraksi & PPh 22 0,25%). <em>Jangan mencampur saldo kas di laci lapak dengan saldo di rekening PKS!</em>
+      </p>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- TAB 1: DASHBOARD -->
+    <!-- ========================================== -->
+    <div class="tab-pane active" id="tab-dashboard">
+      <div class="metric-grid">
+        <div class="metric-card emerald">
+          <div class="metric-header">
+            <span class="metric-title">TBS Masuk (Petani)</span>
+            <div class="metric-icon-wrap">⚖️</div>
+          </div>
+          <div class="metric-value" id="dashTotalTonasePetani">0 kg</div>
+          <div class="metric-sub" id="dashTotalBeliRp">Total: Rp 0</div>
+        </div>
+
+        <div class="metric-card blue">
+          <div class="metric-header">
+            <span class="metric-title">TBS Cair (PKS)</span>
+            <div class="metric-icon-wrap">🏭</div>
+          </div>
+          <div class="metric-value" id="dashTotalTonasePks">0 kg</div>
+          <div class="metric-sub" id="dashTotalJualNetRp">Net Transfer: Rp 0</div>
+        </div>
+
+        <div class="metric-card gold">
+          <div class="metric-header">
+            <span class="metric-title">Kas Laci Lapak (Tunai)</span>
+            <div class="metric-icon-wrap">💵</div>
+          </div>
+          <div class="metric-value" id="dashKasLapak">Rp 0</div>
+          <div class="metric-sub">Kas harian untuk bayar petani</div>
+        </div>
+
+        <div class="metric-card blue">
+          <div class="metric-header">
+            <span class="metric-title">Kas Bank Rekening PKS</span>
+            <div class="metric-icon-wrap">🏦</div>
+          </div>
+          <div class="metric-value" id="dashKasBank">Rp 0</div>
+          <div class="metric-sub">Penerimaan transfer dari pabrik</div>
+        </div>
+
+        <div class="metric-card" id="dashSusutCard">
+          <div class="metric-header">
+            <span class="metric-title">Susut Tonase Pengangkutan</span>
+            <div class="metric-icon-wrap">📉</div>
+          </div>
+          <div class="metric-value" id="dashSusutPercent">0.00%</div>
+          <div class="metric-sub" id="dashSusutBadge">Batas SOP: maks 1.5% - 2.5%</div>
+        </div>
+
+        <div class="metric-card emerald">
+          <div class="metric-header">
+            <span class="metric-title">Laba Bersih Peron</span>
+            <div class="metric-icon-wrap">📈</div>
+          </div>
+          <div class="metric-value" id="dashLabaBersih">Rp 0</div>
+          <div class="metric-sub" id="dashMarginPerKg">Margin: Rp 0 / kg</div>
+        </div>
+      </div>
+
+      <!-- Quick Action Buttons -->
+      <div class="toolbar-card">
+        <div style="font-weight:700; color:var(--text-main);">Aksi Cepat Transaksi Peron:</div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="btn-primary" onclick="openModal('modalPembelian')">
+            <span>➕</span> Timbang Pembelian Petani
+          </button>
+          <button class="btn-outline" onclick="openModal('modalPenjualan')">
+            <span>🚛</span> Catat Pengiriman / Tiket PKS
+          </button>
+          <button class="btn-outline" onclick="openModal('modalBiaya')">
+            <span>💸</span> Catat Biaya Operasional / Angkut
+          </button>
+          <button class="btn-gold" onclick="openModal('modalMutasiKas')">
+            <span>🔄</span> Tarik Bank ke Laci Lapak
+          </button>
+        </div>
+      </div>
+
+      <!-- Charts & Visual Overview -->
+      <div class="charts-grid">
+        <div class="chart-card">
+          <h4>📊 Evaluasi Tonase: Lapak vs PKS (kg)</h4>
+          <div class="canvas-wrapper">
+            <canvas id="chartTonase"></canvas>
+          </div>
+        </div>
+        <div class="chart-card">
+          <h4>💰 Struktur Arus Kas & Margin Usaha (Rp)</h4>
+          <div class="canvas-wrapper">
+            <canvas id="chartKeuangan"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Transactions Mini Table -->
+      <div class="table-container">
+        <div style="padding:14px 18px; border-bottom:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center;">
+          <h4 style="font-size:14px; font-weight:700;">Aktivitas Timbang Pembelian Terbaru Hari Ini</h4>
+          <button class="btn-outline" style="padding:4px 10px; font-size:11px;" onclick="switchTab('tab-pembelian')">Lihat Semua ➔</button>
+        </div>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Tanggal</th>
+              <th>Nota</th>
+              <th>Petani</th>
+              <th class="text-right">Bruto (kg)</th>
+              <th class="text-right">Tara (kg)</th>
+              <th class="text-right">Netto (kg)</th>
+              <th class="text-center">Pot (%)</th>
+              <th class="text-right">N. Bayar (kg)</th>
+              <th class="text-right">Harga (Rp)</th>
+              <th class="text-right">Total Bayar (Rp)</th>
+              <th class="text-right">Bayar Bersih Tunai (Rp)</th>
+            </tr>
+          </thead>
+          <tbody id="tbodyRecentPurchases">
+            <!-- Populated dynamically -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- TAB 2: MODUL 1 - BUKU PEMBELIAN TBS PETANI -->
+    <!-- ========================================== -->
+    <div class="tab-pane" id="tab-pembelian">
+      <div class="toolbar-card">
+        <div class="filter-group">
+          <button class="btn-primary" onclick="openModal('modalPembelian')">
+            <span>➕</span> Timbang TBS Masuk Baru
+          </button>
+          <div class="search-input-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="searchPembelian" placeholder="Cari nama petani / nota..." oninput="renderPurchasesTable()">
+          </div>
+        </div>
+        <div class="filter-group">
+          <button class="btn-outline" onclick="exportTableToCSV('pembelian')">
+            <span>📥</span> Ekspor CSV
+          </button>
+          <button class="btn-outline" onclick="printPurchasesReport()">
+            <span>🖨️</span> Cetak Buku Pembelian
+          </button>
+        </div>
+      </div>
+
+      <div class="table-container">
+        <table class="data-table" id="tablePembelian">
+          <thead>
+            <tr>
+              <th>Tanggal</th>
+              <th>No. Nota</th>
+              <th>Nama Petani</th>
+              <th class="text-right">Bruto (kg)</th>
+              <th class="text-right">Tara (kg)</th>
+              <th class="text-right">Netto (kg)</th>
+              <th class="text-center">Pot. (%)</th>
+              <th class="text-right">N. Bayar (kg)</th>
+              <th class="text-right">Harga Beli</th>
+              <th class="text-right">Total (Rp)</th>
+              <th class="text-right">Pot. Kasbon</th>
+              <th class="text-right">Bayar Bersih</th>
+              <th class="text-center">Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="tbodyPurchases">
+            <!-- Filled via JS -->
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="3">TOTAL PEMBELIAN</td>
+              <td class="text-right" id="ftBruto">0</td>
+              <td class="text-right" id="ftTara">0</td>
+              <td class="text-right" id="ftNetto">0</td>
+              <td class="text-center">-</td>
+              <td class="text-right" id="ftNBayar">0</td>
+              <td class="text-right">-</td>
+              <td class="text-right" id="ftTotal">Rp 0</td>
+              <td class="text-right" id="ftPotKasbon">Rp 0</td>
+              <td class="text-right" id="ftBayarBersih">Rp 0</td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- TAB 3: MODUL 2 - BUKU PENJUALAN & PENGIRIMAN PKS -->
+    <!-- ========================================== -->
+    <div class="tab-pane" id="tab-penjualan">
+      <div class="toolbar-card">
+        <div class="filter-group">
+          <button class="btn-primary" onclick="openModal('modalPenjualan')">
+            <span>➕</span> Catat Tiket / Kirim PKS Baru
+          </button>
+          <div class="search-input-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="searchPenjualan" placeholder="Cari No. Tiket / No. Polisi..." oninput="renderSalesTable()">
+          </div>
+          <select class="form-control" id="filterStatusPenjualan" onchange="renderSalesTable()" style="width: auto;">
+            <option value="ALL">Semua Status</option>
+            <option value="Cair">Status: Cair</option>
+            <option value="Pending">Status: Pending (Piutang)</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <button class="btn-outline" onclick="exportTableToCSV('penjualan')">
+            <span>📥</span> Ekspor CSV
+          </button>
+          <button class="btn-outline" onclick="printSalesReport()">
+            <span>🖨️</span> Cetak Buku Penjualan
+          </button>
+        </div>
+      </div>
+
+      <div class="table-container">
+        <table class="data-table" id="tablePenjualan">
+          <thead>
+            <tr>
+              <th>Tanggal</th>
+              <th>No. Tiket PKS</th>
+              <th>No. Polisi</th>
+              <th class="text-right">Netto PKS (kg)</th>
+              <th class="text-center">Refraksi</th>
+              <th class="text-right">N. Cair (kg)</th>
+              <th class="text-right">Harga DO</th>
+              <th class="text-right">Gross (Rp)</th>
+              <th class="text-right">PPh 22 (0,25%)</th>
+              <th class="text-right">Net Cair (Rp)</th>
+              <th class="text-center">Status</th>
+              <th class="text-center">Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="tbodySales">
+            <!-- Populated via JS -->
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="3">TOTAL PENJUALAN PKS</td>
+              <td class="text-right" id="ftNettoPks">0</td>
+              <td class="text-center">-</td>
+              <td class="text-right" id="ftNCair">0</td>
+              <td class="text-right">-</td>
+              <td class="text-right" id="ftGross">Rp 0</td>
+              <td class="text-right" id="ftPph">Rp 0</td>
+              <td class="text-right" id="ftNetCair">Rp 0</td>
+              <td colspan="2"></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- TAB 4: MODUL 3 - JURNAL KAS & OPERASIONAL HARIAN -->
+    <!-- ========================================== -->
+    <div class="tab-pane" id="tab-jurnal">
+      <!-- Dual Wallet Summary Box -->
+      <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:16px; margin-bottom:20px;">
+        <div style="background:#ffffff; border:1px solid #e2e8f0; border-radius:10px; padding:18px; border-left:5px solid #8b5cf6;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <span style="font-size:12px; font-weight:700; color:#6b21a8; text-transform:uppercase;">💵 Kas Laci Lapak (Tunai / Kasir)</span>
+            <span class="badge badge-kas-lapak">Laci Peron</span>
+          </div>
+          <div style="font-size:24px; font-weight:800; color:#0f172a;" id="jurnalSaldoLapak">Rp 0</div>
+          <div style="font-size:11.5px; color:#64748b; margin-top:4px;">Digunakan khusus transaksi tunai di lapak (beli buah & kasbon)</div>
+        </div>
+
+        <div style="background:#ffffff; border:1px solid #e2e8f0; border-radius:10px; padding:18px; border-left:5px solid #0284c7;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <span style="font-size:12px; font-weight:700; color:#0369a1; text-transform:uppercase;">🏦 Kas Rekening Bank Penampung PKS</span>
+            <span class="badge badge-kas-bank">Transfer Bank</span>
+          </div>
+          <div style="font-size:24px; font-weight:800; color:#0f172a;" id="jurnalSaldoBank">Rp 0</div>
+          <div style="font-size:11.5px; color:#64748b; margin-top:4px;">Penerimaan transfer pembayaran resmi tiket PKS</div>
+        </div>
+
+        <div style="background:#ffffff; border:1px solid #e2e8f0; border-radius:10px; padding:18px; border-left:5px solid #10b981;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <span style="font-size:12px; font-weight:700; color:#065f46; text-transform:uppercase;">💰 Total Likuiditas Usaha</span>
+            <span class="badge badge-cair">Gabungan</span>
+          </div>
+          <div style="font-size:24px; font-weight:800; color:#0f172a;" id="jurnalSaldoTotal">Rp 0</div>
+          <div style="font-size:11.5px; color:#64748b; margin-top:4px;">Total dana tunai di lapak + dana di rekening bank</div>
+        </div>
+      </div>
+
+      <div class="toolbar-card">
+        <div class="filter-group">
+          <button class="btn-primary" onclick="openModal('modalBiaya')">
+            <span>➕</span> Catat Pengeluaran Operasional
+          </button>
+          <button class="btn-gold" onclick="openModal('modalMutasiKas')">
+            <span>🔄</span> Tarik Tunai Bank ➔ Laci Lapak
+          </button>
+          <select class="form-control" id="filterAkunJurnal" onchange="renderJournalTable()" style="width: auto;">
+            <option value="ALL">Semua Akun Kas</option>
+            <option value="Kas Laci Lapak">Hanya Kas Laci Lapak</option>
+            <option value="Kas Bank PKS">Hanya Kas Bank PKS</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <button class="btn-outline" onclick="exportTableToCSV('jurnal')">
+            <span>📥</span> Ekspor CSV
+          </button>
+          <button class="btn-outline" onclick="printJournalReport()">
+            <span>🖨️</span> Cetak Jurnal Kas
+          </button>
+        </div>
+      </div>
+
+      <div class="table-container">
+        <table class="data-table" id="tableJurnal">
+          <thead>
+            <tr>
+              <th>Tanggal</th>
+              <th>Keterangan Transaksi</th>
+              <th>Kategori</th>
+              <th>Akun Kas</th>
+              <th class="text-right">Masuk (Rp)</th>
+              <th class="text-right">Keluar (Rp)</th>
+              <th class="text-right">Saldo Kas (Rp)</th>
+              <th class="text-center">Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="tbodyJournal">
+            <!-- Filled via JS -->
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="4">TOTAL MUTASI ARUS KAS</td>
+              <td class="text-right" id="ftTotalMasuk">Rp 0</td>
+              <td class="text-right" id="ftTotalKeluar">Rp 0</td>
+              <td class="text-right" id="ftSaldoAkhir">Rp 0</td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- TAB 5: EVALUASI SUSUT & MARGIN (FORMULA SOP) -->
+    <!-- ========================================== -->
+    <div class="tab-pane" id="tab-analisis">
+      <div class="susut-analysis-container">
+        <!-- Box Formula 1: Susut Tonase -->
+        <div class="susut-card">
+          <h3><span>📉</span> 1. Evaluasi Susut Tonase Pengangkutan</h3>
+          <p style="font-size:12.5px; color:var(--text-muted); margin-bottom:12px;">
+            Formula SOP: <code>Susut (%) = [ (Total Netto Bayar Petani − Total Netto Dibayar PKS) ÷ Total Netto Bayar Petani ] × 100%</code>
+          </p>
+
+          <div class="gauge-meter-wrapper">
+            <div class="gauge-percent" id="evalSusutVal">0.00%</div>
+            <div class="gauge-status" id="evalSusutBadge">Aman (Dalam Batas Toleransi)</div>
+          </div>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:14px;">
+            <div style="background:#f8fafc; padding:10px; border-radius:6px; border:1px solid #e2e8f0;">
+              <div style="font-size:11px; color:#64748b;">Total Netto Muat Lapak / Bayar:</div>
+              <div style="font-size:15px; font-weight:700;" id="evalNettoPetani">0 kg</div>
+            </div>
+            <div style="background:#f8fafc; padding:10px; border-radius:6px; border:1px solid #e2e8f0;">
+              <div style="font-size:11px; color:#64748b;">Total Netto Diterima PKS:</div>
+              <div style="font-size:15px; font-weight:700;" id="evalNettoPks">0 kg</div>
+            </div>
+            <div style="background:#f8fafc; padding:10px; border-radius:6px; border:1px solid #e2e8f0;">
+              <div style="font-size:11px; color:#64748b;">Selisih Susut Fisik:</div>
+              <div style="font-size:15px; font-weight:700; color:#dc2626;" id="evalSusutKg">0 kg</div>
+            </div>
+            <div style="background:#f8fafc; padding:10px; border-radius:6px; border:1px solid #e2e8f0;">
+              <div style="font-size:11px; color:#64748b;">Nilai Kerugian Susut:</div>
+              <div style="font-size:15px; font-weight:700; color:#dc2626;" id="evalSusutRp">Rp 0</div>
+            </div>
+          </div>
+
+          <div class="sop-standard-box">
+            <strong>Aturan Standar SOP:</strong> Batas aman toleransi susut jalan + refraksi PKS adalah maksimal <strong>1,5% – 2,5%</strong>. Jika angka di atas 2,5%, lakukan investigasi segera pada supir pengangkut, kalibrasi timbangan jembatan lapak, atau periksa sortasi buah mentah/sampah.
+          </div>
+        </div>
+
+        <!-- Box Formula 2: Laba Bersih Peron Harian -->
+        <div class="susut-card">
+          <h3><span>💰</span> 2. Laba Bersih Peron Harian (P&L)</h3>
+          <p style="font-size:12.5px; color:var(--text-muted); margin-bottom:12px;">
+            Formula SOP: <code>Laba Bersih = Total Netto Cair PKS (Rp) − Total Pembelian Petani (Rp) − Biaya Muat & Angkut − Operasional Lapak</code>
+          </p>
+
+          <div style="display:flex; flex-direction:column; gap:8px; margin-top:14px;">
+            <div class="live-calc-row">
+              <span>(+) Total Netto Cair PKS (Gross - PPh 22):</span>
+              <strong style="color:#059669;" id="plPenjualanPks">Rp 0</strong>
+            </div>
+            <div class="live-calc-row">
+              <span>(−) Total Pembelian TBS Petani:</span>
+              <strong style="color:#dc2626;" id="plPembelianPetani">Rp 0</strong>
+            </div>
+            <div class="live-calc-row">
+              <span>(−) Total Biaya Muat & Uang Jalan Angkut:</span>
+              <strong style="color:#dc2626;" id="plBiayaAngkut">Rp 0</strong>
+            </div>
+            <div class="live-calc-row">
+              <span>(−) Biaya Operasional Lapak (Genset/ATK/Gaji):</span>
+              <strong style="color:#dc2626;" id="plOperasionalLapak">Rp 0</strong>
+            </div>
+            <div class="live-calc-row grand-total">
+              <span>(=) LABA BERSIH PERON:</span>
+              <span id="plLabaBersih" style="font-size:18px;">Rp 0</span>
+            </div>
+          </div>
+
+          <div style="background:#ecfdf5; border:1px solid #a7f3d0; border-radius:6px; padding:12px; margin-top:16px;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+              <span style="font-size:12px; color:#065f46;">Rata-rata Harga Jual DO Net Pabrik:</span>
+              <strong id="avgHargaJual">Rp 0 / kg</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+              <span style="font-size:12px; color:#065f46;">Rata-rata Harga Beli Petani:</span>
+              <strong id="avgHargaBeli">Rp 0 / kg</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; border-top:1px dashed #6ee7b7; padding-top:4px;">
+              <span style="font-size:12px; font-weight:700; color:#064e3b;">Spread Margin Kotor per Kg:</span>
+              <strong style="color:#047857;" id="spreadMargin">Rp 0 / kg</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Detail Perbandingan Truk Pengiriman -->
+      <div class="table-container">
+        <div style="padding:14px 18px; border-bottom:1px solid var(--border-color);">
+          <h4 style="font-size:14px; font-weight:700;">Audit Susut Tonase per Pengiriman Truk ke PKS</h4>
+        </div>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>No. Tiket</th>
+              <th>No. Polisi</th>
+              <th>Supir</th>
+              <th class="text-right">Timbang Lapak (kg)</th>
+              <th class="text-right">Netto PKS (kg)</th>
+              <th class="text-right">Susut Jalan (kg)</th>
+              <th class="text-center">Susut Jalan (%)</th>
+              <th class="text-center">Refraksi PKS (%)</th>
+              <th class="text-right">N. Cair (kg)</th>
+              <th class="text-center">Indikator Toleransi</th>
+            </tr>
+          </thead>
+          <tbody id="tbodyTruckAudit">
+            <!-- Filled via JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- TAB 6: PENGENDALIAN KASBON PETANI -->
+    <!-- ========================================== -->
+    <div class="tab-pane" id="tab-kasbon">
+      <div class="toolbar-card">
+        <div class="filter-group">
+          <button class="btn-primary" onclick="openModal('modalPinjamKasbon')">
+            <span>➕</span> Berikan Pinjaman Kasbon Baru
+          </button>
+          <button class="btn-outline" onclick="openModal('modalTambahPetani')">
+            <span>👤</span> Daftarkan Petani Baru
+          </button>
+          <div class="search-input-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="searchKasbon" placeholder="Cari nama petani..." oninput="renderKasbonTable()">
+          </div>
+        </div>
+        <div class="filter-group">
+          <button class="btn-outline" onclick="printKasbonReport()">
+            <span>🖨️</span> Cetak Buku Kasbon
+          </button>
+        </div>
+      </div>
+
+      <!-- Farmer Debt List -->
+      <div class="table-container">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>ID Petani</th>
+              <th>Nama Petani</th>
+              <th>Nomor Telepon</th>
+              <th>Lokasi Kebun</th>
+              <th class="text-right">Total Pinjaman Tercatat</th>
+              <th class="text-right">Sisa Saldo Kasbon Saat Ini</th>
+              <th class="text-center">Status Hutang</th>
+              <th class="text-center">Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="tbodyFarmers">
+            <!-- Populated via JS -->
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="5">TOTAL PIUTANG KASBON PETANI</td>
+              <td class="text-right" id="ftTotalKasbonPetani" style="color:#b91c1c; font-size:14px;">Rp 0</td>
+              <td colspan="2"></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+      <!-- History Log of Kasbon -->
+      <div class="table-container">
+        <div style="padding:14px 18px; border-bottom:1px solid var(--border-color);">
+          <h4 style="font-size:14px; font-weight:700;">Riwayat Mutasi Kasbon Petani (Pinjaman & Pemotongan Timbang)</h4>
+        </div>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Tanggal</th>
+              <th>Nama Petani</th>
+              <th>Jenis Mutasi</th>
+              <th class="text-right">Jumlah (Rp)</th>
+              <th>Keterangan / Referensi</th>
+            </tr>
+          </thead>
+          <tbody id="tbodyKasbonLogs">
+            <!-- Populated via JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- TAB 7: LAPORAN & REKAPITULASI -->
+    <!-- ========================================== -->
+    <div class="tab-pane" id="tab-laporan">
+      <div class="toolbar-card">
+        <div class="filter-group">
+          <span style="font-weight:600; font-size:12.5px;">Filter Periode:</span>
+          <button class="filter-btn active" onclick="setPeriodFilter('TODAY', this)">Hari Ini (20 Nov)</button>
+          <button class="filter-btn" onclick="setPeriodFilter('ALL', this)">Semua Data</button>
+        </div>
+        <div class="filter-group">
+          <button class="btn-primary" onclick="printFullSOPReport()">
+            <span>🖨️</span> Cetak Laporan Formal SOP-TBS-2026/01
+          </button>
+          <button class="btn-outline" onclick="backupDatabase()">
+            <span>💾</span> Download Backup JSON
+          </button>
+        </div>
+      </div>
+
+      <!-- Formal SOP Report Preview Box -->
+      <div style="background:#ffffff; border:1px solid var(--border-color); border-radius:10px; padding:30px; box-shadow:var(--shadow-sm); max-width:960px; margin:0 auto;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom:2px solid #0f172a; padding-bottom:16px; margin-bottom:20px;">
+          <div>
+            <h2 style="font-size:20px; font-weight:800; color:#064e3b;" id="repPeronName">POOL TBS KARYA MAJU</h2>
+            <div style="font-size:12px; color:#475569;" id="repPeronAddress">Jl. Poros Perkebunan Sawit KM 14, Riau</div>
+            <div style="font-size:12px; color:#475569;" id="repPeronContact">Telp: 0812-7654-3210</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:14px; font-weight:800; color:#0f172a;">REKAPITULASI OPERASIONAL PERON</div>
+            <div style="font-size:12px; color:#64748b;">Dokumen ID: <strong id="repDocId">SOP-TBS-2026/01</strong></div>
+            <div style="font-size:12px; color:#64748b;">Mitra PKS: <strong id="repPksPartner">PT. Sawit Makmur Perkasa</strong></div>
+            <div style="font-size:12px; color:#64748b;">Tanggal Cetak: <span id="repPrintDate">20/11/2026</span></div>
+          </div>
+        </div>
+
+        <h3 style="font-size:14px; font-weight:700; margin-bottom:8px; color:#065f46;">A. Ringkasan Eksekutif Keuangan & Arus Kas</h3>
+        <table style="width:100%; border-collapse:collapse; margin-bottom:20px; font-size:13px;">
+          <tr style="border-bottom:1px solid #e2e8f0;">
+            <td style="padding:8px 0;">1. Total Pembelian TBS dari Petani</td>
+            <td style="padding:8px 0; text-align:right;" id="repTonaseBeli">0 kg</td>
+            <td style="padding:8px 0; text-align:right; font-weight:700;" id="repTotalBeli">Rp 0</td>
+          </tr>
+          <tr style="border-bottom:1px solid #e2e8f0;">
+            <td style="padding:8px 0;">2. Potongan Angsuran Kasbon Petani</td>
+            <td style="padding:8px 0; text-align:right;">-</td>
+            <td style="padding:8px 0; text-align:right; font-weight:700; color:#059669;" id="repPotKasbon">Rp 0</td>
+          </tr>
+          <tr style="border-bottom:1px solid #e2e8f0;">
+            <td style="padding:8px 0;">3. Total Kas Keluar Lapak untuk Bayar Petani (Net)</td>
+            <td style="padding:8px 0; text-align:right;">-</td>
+            <td style="padding:8px 0; text-align:right; font-weight:700; color:#dc2626;" id="repBayarBersih">Rp 0</td>
+          </tr>
+          <tr style="border-bottom:1px solid #e2e8f0;">
+            <td style="padding:8px 0;">4. Total Penjualan & Pengiriman ke PKS (Netto Cair)</td>
+            <td style="padding:8px 0; text-align:right;" id="repTonasePks">0 kg</td>
+            <td style="padding:8px 0; text-align:right; font-weight:700;" id="repGrossPks">Rp 0</td>
+          </tr>
+          <tr style="border-bottom:1px solid #e2e8f0;">
+            <td style="padding:8px 0;">5. Potongan Pajak PPh Pasal 22 (0,25%)</td>
+            <td style="padding:8px 0; text-align:right;">-</td>
+            <td style="padding:8px 0; text-align:right; font-weight:700; color:#dc2626;" id="repPph22">Rp 0</td>
+          </tr>
+          <tr style="border-bottom:1px solid #e2e8f0;">
+            <td style="padding:8px 0;">6. Penerimaan Netto Cair Transfer Rekening PKS</td>
+            <td style="padding:8px 0; text-align:right;">-</td>
+            <td style="padding:8px 0; text-align:right; font-weight:700; color:#059669;" id="repNetCair">Rp 0</td>
+          </tr>
+          <tr style="border-bottom:1px solid #e2e8f0;">
+            <td style="padding:8px 0;">7. Biaya Muat & Uang Jalan Pengangkutan</td>
+            <td style="padding:8px 0; text-align:right;">-</td>
+            <td style="padding:8px 0; text-align:right; font-weight:700; color:#dc2626;" id="repBiayaAngkut">Rp 0</td>
+          </tr>
+          <tr style="border-bottom:2px solid #0f172a; background:#f0fdf4;">
+            <td style="padding:10px 8px; font-weight:800; color:#064e3b;">8. ESTIMASI LABA BERSIH OPERASIONAL PERON</td>
+            <td style="padding:10px 8px; text-align:right;">-</td>
+            <td style="padding:10px 8px; text-align:right; font-weight:800; font-size:16px; color:#065f46;" id="repLabaBersih">Rp 0</td>
+          </tr>
+        </table>
+
+        <h3 style="font-size:14px; font-weight:700; margin-bottom:8px; color:#065f46;">B. Evaluasi Toleransi Susut Tonase</h3>
+        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:12px; font-size:12.5px; margin-bottom:20px;">
+          Persentase Susut Tonase Saat Ini: <strong id="repSusutPercent">0.00%</strong> | Batas Toleransi SOP: <strong>Maks 1,5% - 2,5%</strong> | Status Audit: <strong id="repSusutStatus" style="color:#059669;">AMAN</strong>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; margin-top:40px; text-align:center; font-size:12px;">
+          <div style="width:200px;">
+            <div>Petugas Timbang Lapak,</div>
+            <div style="height:60px;"></div>
+            <div style="border-top:1px solid #94a3b8; padding-top:4px; font-weight:700;">( ................................ )</div>
+          </div>
+          <div style="width:200px;">
+            <div>Kasir / Keuangan Peron,</div>
+            <div style="height:60px;"></div>
+            <div style="border-top:1px solid #94a3b8; padding-top:4px; font-weight:700;">( ................................ )</div>
+          </div>
+          <div style="width:200px;">
+            <div>Pimpinan POOL TBS,</div>
+            <div style="height:60px;"></div>
+            <div style="border-top:1px solid #94a3b8; padding-top:4px; font-weight:700;">( Swanto / Pengelola )</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- TAB 8: PROFIL & PENGATURAN -->
+    <!-- ========================================== -->
+    <div class="tab-pane" id="tab-pengaturan">
+      <div style="max-width:800px; margin:0 auto; background:#ffffff; border-radius:12px; border:1px solid var(--border-color); padding:24px; box-shadow:var(--shadow-sm);">
+        <h3 style="font-size:16px; font-weight:700; margin-bottom:16px; color:var(--text-main); display:flex; align-items:center; gap:8px;">
+          <span>⚙️</span> Pengaturan Profil Peron & Standar SOP
+        </h3>
+
+        <form id="formSettings" onsubmit="saveSettings(event)">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Nama Lapak / Peron TBS</label>
+              <input type="text" class="form-control" id="cfgPeronName" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Dokumen ID SOP</label>
+              <input type="text" class="form-control" id="cfgDocId" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Nama Pabrik Mitra PKS</label>
+              <input type="text" class="form-control" id="cfgPksPartner" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Nomor Kontak / Telepon</label>
+              <input type="text" class="form-control" id="cfgTelepon">
+            </div>
+            <div class="form-group col-span-2">
+              <label class="form-label">Alamat / Lokasi Operasional Peron</label>
+              <input type="text" class="form-control" id="cfgAlamat">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Standar Harga Beli Petani Default (Rp/kg)</label>
+              <input type="number" class="form-control" id="cfgHargaBeli">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Standar Harga DO Pabrik Default (Rp/kg)</label>
+              <input type="number" class="form-control" id="cfgHargaDO">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Tarif PPh Pasal 22 (%)</label>
+              <input type="number" step="0.01" class="form-control" id="cfgPphRate" value="0.25">
+              <div class="form-hint">Sesuai aturan perpajakan TBS kelapa sawit (0,25%)</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Batas Maksimal Toleransi Susut (%)</label>
+              <input type="number" step="0.1" class="form-control" id="cfgSusutMax" value="2.5">
+              <div class="form-hint">Standar SOP: batas maksimal 1,5% - 2,5%</div>
+            </div>
+          </div>
+
+          <div style="display:flex; justify-content:space-between; margin-top:24px; padding-top:16px; border-top:1px solid #e2e8f0; flex-wrap:wrap; gap:10px;">
+            <button type="button" class="btn-outline" onclick="resetToSOPData()" style="color:#b91c1c; border-color:#fca5a5;">
+              <span>🔄</span> Muat Ulang Data Awal SOP (20/11/2026)
+            </button>
+            <button type="submit" class="btn-primary">
+              <span>💾</span> Simpan Perubahan Profil
+            </button>
+          </div>
+        </form>
+
+        <div style="margin-top:30px; padding:16px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px;">
+          <h4 style="font-size:13px; font-weight:700; margin-bottom:8px;">Manajemen Cadangan & Pemulihan Database</h4>
+          <p style="font-size:12px; color:#64748b; margin-bottom:12px;">
+            Data Anda disimpan secara persisten di sistem internal (<code>data/database.json</code>) serta disinkronkan ke peramban. Anda dapat mengunduh salinan cadangan kapan saja.
+          </p>
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <button class="btn-outline" onclick="backupDatabase()">📥 Unduh Cadangan JSON</button>
+            <label class="btn-outline" style="cursor:pointer; margin:0;">
+              📤 Pulihkan Data dari JSON
+              <input type="file" id="fileRestore" accept=".json" style="display:none;" onchange="restoreDatabase(event)">
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ======================================================== -->
+  <!-- MODAL: PEMBELIAN TBS PETANI (MODUL 1) -->
+  <!-- ======================================================== -->
+  <div class="modal-overlay" id="modalPembelian">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title"><span>🚜</span> Timbang Penerimaan TBS Petani (Modul 1)</div>
+        <button class="btn-close-modal" onclick="closeModal('modalPembelian')">&times;</button>
+      </div>
+      <form id="formPembelian" onsubmit="savePurchase(event)">
+        <div class="modal-body">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Tanggal Timbang</label>
+              <input type="date" class="form-control" id="buyDate" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">No. Nota Timbang</label>
+              <input type="text" class="form-control" id="buyNota" readonly>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Nama Petani / Kelompok Tani</label>
+              <select class="form-control" id="buyFarmerSelect" onchange="onSelectFarmer()" required>
+                <!-- Options populated dynamically -->
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">No. Kendaraan (Plat Polisi)</label>
+              <input type="text" class="form-control" id="buyVehicle" placeholder="BM 1234 XX">
+            </div>
+
+            <!-- Timbangan Kotor & Tara -->
+            <div class="form-group">
+              <label class="form-label">Bruto (Timbangan Kotor - kg)</label>
+              <input type="number" class="form-control" id="buyBruto" required oninput="calcPurchaseLive()" placeholder="3450">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Tara (Timbangan Kosong - kg)</label>
+              <input type="number" class="form-control" id="buyTara" required oninput="calcPurchaseLive()" placeholder="1950">
+            </div>
+
+            <!-- Netto & Potongan Mutu -->
+            <div class="form-group">
+              <label class="form-label">Netto Bersih Lapak (kg)</label>
+              <input type="number" class="form-control" id="buyNetto" readonly>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Potongan Mutu / Sortasi (%)</label>
+              <input type="number" step="0.1" class="form-control" id="buyPotPercent" value="2.0" required oninput="calcPurchaseLive()">
+              <div class="form-hint">Sampah, tangkai panjang, air</div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Netto Bayar (N. Bayar - kg)</label>
+              <input type="number" class="form-control" id="buyNBayar" readonly style="font-weight:700;">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Harga Beli Lapak (Rp / kg)</label>
+              <input type="number" class="form-control" id="buyHargaBeli" required oninput="calcPurchaseLive()">
+            </div>
+
+            <div class="form-group col-span-2">
+              <div class="live-calc-box">
+                <div class="live-calc-row">
+                  <span>Total Nilai Timbang:</span>
+                  <strong id="liveBuyTotal">Rp 0</strong>
+                </div>
+                <div class="live-calc-row" style="color:#d97706;">
+                  <span>Saldo Kasbon Petani Saat Ini:</span>
+                  <strong id="liveFarmerKasbon">Rp 0</strong>
+                </div>
+                <div class="live-calc-row" style="margin-top:6px; align-items:center;">
+                  <span style="font-weight:600;">Potongan Angsuran Kasbon:</span>
+                  <input type="number" class="form-control" id="buyPotKasbon" value="0" style="width:140px; text-align:right;" oninput="calcPurchaseLive()">
+                </div>
+                <div class="live-calc-row grand-total">
+                  <span>BAYAR BERSIH TUNAI KE PETANI:</span>
+                  <span id="liveBayarBersih">Rp 0</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group col-span-2">
+              <label class="form-label">Catatan Mutu / Kondisi TBS</label>
+              <input type="text" class="form-control" id="buyCatatan" placeholder="Kondisi buah matang sempurna, dll.">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-outline" onclick="closeModal('modalPembelian')">Batal</button>
+          <button type="submit" class="btn-primary">💾 Simpan Pembelian & Cetak Nota</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL: PENJUALAN & TIKET PKS (MODUL 2) -->
+  <!-- ======================================================== -->
+  <div class="modal-overlay" id="modalPenjualan">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title"><span>🏭</span> Catat Tiket / Pengiriman PKS (Modul 2)</div>
+        <button class="btn-close-modal" onclick="closeModal('modalPenjualan')">&times;</button>
+      </div>
+      <form id="formPenjualan" onsubmit="saveSale(event)">
+        <div class="modal-body">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Tanggal Pengiriman / Tiket</label>
+              <input type="date" class="form-control" id="saleDate" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">No. Tiket Resmi PKS</label>
+              <input type="text" class="form-control" id="saleTicketNo" placeholder="PKS-08911" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">No. Polisi Truk</label>
+              <input type="text" class="form-control" id="salePoliceNo" placeholder="BM 8123 XX" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Nama Supir / Pengemudi</label>
+              <input type="text" class="form-control" id="saleDriver" placeholder="Anto">
+            </div>
+            <div class="form-group col-span-2">
+              <label class="form-label">Pabrik PKS Tujuan</label>
+              <input type="text" class="form-control" id="saleDestination" required>
+            </div>
+
+            <!-- Tonase Lapak vs PKS -->
+            <div class="form-group">
+              <label class="form-label">Netto Timbang Muat Lapak (kg)</label>
+              <input type="number" class="form-control" id="saleNettoLapak" placeholder="8500" required>
+              <div class="form-hint">Untuk audit susut tonase jalan</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Netto Tiket PKS (kg)</label>
+              <input type="number" class="form-control" id="saleNettoPks" placeholder="8350" required oninput="calcSaleLive()">
+            </div>
+
+            <!-- Refraksi & N Cair -->
+            <div class="form-group">
+              <label class="form-label">Refraksi Pabrik PKS (%)</label>
+              <input type="number" step="0.1" class="form-control" id="saleRefraksi" value="2.0" required oninput="calcSaleLive()">
+              <div class="form-hint">Sortasi potongan mutu pabrik</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Netto Cair Pabrik (N. Cair - kg)</label>
+              <input type="number" class="form-control" id="saleNCair" readonly style="font-weight:700;">
+            </div>
+
+            <!-- Harga DO & Gross -->
+            <div class="form-group">
+              <label class="form-label">Harga DO PKS (Rp / kg)</label>
+              <input type="number" class="form-control" id="saleHargaDO" required oninput="calcSaleLive()">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Status Pembayaran Tiket</label>
+              <select class="form-control" id="saleStatus">
+                <option value="Pending">Pending (Piutang PKS)</option>
+                <option value="Cair">Cair (Masuk Rekening Bank)</option>
+              </select>
+            </div>
+
+            <div class="form-group col-span-2">
+              <div class="live-calc-box">
+                <div class="live-calc-row">
+                  <span>Gross (N. Cair × Harga DO):</span>
+                  <strong id="liveSaleGross">Rp 0</strong>
+                </div>
+                <div class="live-calc-row" style="color:#dc2626;">
+                  <span>PPh Pasal 22 (0,25%):</span>
+                  <strong id="liveSalePph">Rp 0</strong>
+                </div>
+                <div class="live-calc-row grand-total">
+                  <span>NETTO CAIR DITRANSFER PKS:</span>
+                  <span id="liveSaleNetCair">Rp 0</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-outline" onclick="closeModal('modalPenjualan')">Batal</button>
+          <button type="submit" class="btn-primary">💾 Simpan Tiket PKS</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL: PENGELUARAN OPERASIONAL & BIAYA ANGKUT -->
+  <!-- ======================================================== -->
+  <div class="modal-overlay" id="modalBiaya">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title"><span>💸</span> Catat Biaya Operasional & Angkut</div>
+        <button class="btn-close-modal" onclick="closeModal('modalBiaya')">&times;</button>
+      </div>
+      <form id="formBiaya" onsubmit="saveExpense(event)">
+        <div class="modal-body">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Tanggal Transaksi</label>
+              <input type="date" class="form-control" id="expDate" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Kategori Biaya</label>
+              <select class="form-control" id="expCategory" required>
+                <option value="Biaya Angkut">Biaya Angkut / Uang Jalan Supir</option>
+                <option value="Upah Muat">Upah Buruh Muat & Bongkar</option>
+                <option value="Solar & Genset">BBM Solar Genset Lapak</option>
+                <option value="Gaji & Operasional">Gaji Karyawan / Timbangan</option>
+                <option value="Konsumsi & ATK">Konsumsi, Minum, ATK Kertas</option>
+                <option value="Perawatan Lapak">Perawatan Timbangan & Lapak</option>
+                <option value="Operasional Lain">Operasional Lain-lain</option>
+              </select>
+            </div>
+            <div class="form-group col-span-2">
+              <label class="form-label">Keterangan Rinci Transaksi</label>
+              <input type="text" class="form-control" id="expDesc" placeholder="Contoh: Uang Jalan Sopir & Muat Truk BM 8123 XX" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Sumber Akun Kas</label>
+              <select class="form-control" id="expAccount" required>
+                <option value="Kas Laci Lapak">Kas Laci Lapak (Tunai)</option>
+                <option value="Kas Bank PKS">Kas Bank Rekening PKS</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Jumlah Pengeluaran (Rp)</label>
+              <input type="number" class="form-control" id="expAmount" placeholder="750000" required>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-outline" onclick="closeModal('modalBiaya')">Batal</button>
+          <button type="submit" class="btn-primary">💾 Simpan Pengeluaran</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL: MUTASI KAS (TARIK BANK -> LACI LAPAK) -->
+  <!-- ======================================================== -->
+  <div class="modal-overlay" id="modalMutasiKas">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title"><span>🔄</span> Mutasi Kas: Tarik Bank ke Laci Lapak</div>
+        <button class="btn-close-modal" onclick="closeModal('modalMutasiKas')">&times;</button>
+      </div>
+      <form id="formMutasiKas" onsubmit="saveTransfer(event)">
+        <div class="modal-body">
+          <p style="font-size:12.5px; color:#475569; margin-bottom:14px;">
+            Sesuai aturan baku SOP, penerimaan dari PKS masuk ke Bank. Untuk mengisi kas tunai di laci lapak guna pembayaran petani harian, lakukan penarikan/mutasi tercatat di sini.
+          </p>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Tanggal Penarikan</label>
+              <input type="date" class="form-control" id="mutDate" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Jumlah Penarikan (Rp)</label>
+              <input type="number" class="form-control" id="mutAmount" placeholder="10000000" required>
+            </div>
+            <div class="form-group col-span-2">
+              <label class="form-label">Keterangan Mutasi</label>
+              <input type="text" class="form-control" id="mutDesc" value="Tarik Tunai dari Rekening Bank PKS untuk Modal Kas Laci Lapak" required>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-outline" onclick="closeModal('modalMutasiKas')">Batal</button>
+          <button type="submit" class="btn-gold">🔄 Proses Mutasi Saldo</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL: PINJAMAN KASBON PETANI BARU -->
+  <!-- ======================================================== -->
+  <div class="modal-overlay" id="modalPinjamKasbon">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title"><span>🤝</span> Berikan Pinjaman Kasbon Petani</div>
+        <button class="btn-close-modal" onclick="closeModal('modalPinjamKasbon')">&times;</button>
+      </div>
+      <form id="formPinjamKasbon" onsubmit="saveFarmerLoan(event)">
+        <div class="modal-body">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Tanggal Pinjaman</label>
+              <input type="date" class="form-control" id="loanDate" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Pilih Petani</label>
+              <select class="form-control" id="loanFarmerSelect" required>
+                <!-- Populated dynamically -->
+              </select>
+            </div>
+            <div class="form-group col-span-2">
+              <label class="form-label">Jumlah Pinjaman Kasbon (Rp)</label>
+              <input type="number" class="form-control" id="loanAmount" placeholder="500000" required>
+              <div class="form-hint">Uang tunai akan otomatis dikeluarkan dari Kas Laci Lapak</div>
+            </div>
+            <div class="form-group col-span-2">
+              <label class="form-label">Keperluan / Keterangan Kasbon</label>
+              <input type="text" class="form-control" id="loanNotes" placeholder="Contoh: Pembelian pupuk NPK / biaya dodos" required>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-outline" onclick="closeModal('modalPinjamKasbon')">Batal</button>
+          <button type="submit" class="btn-primary">💾 Simpan Kasbon</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL: DAFTAR PETANI BARU -->
+  <!-- ======================================================== -->
+  <div class="modal-overlay" id="modalTambahPetani">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title"><span>👤</span> Daftarkan Petani / Kelompok Tani Baru</div>
+        <button class="btn-close-modal" onclick="closeModal('modalTambahPetani')">&times;</button>
+      </div>
+      <form id="formTambahPetani" onsubmit="saveNewFarmer(event)">
+        <div class="modal-body">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Nama Lengkap Petani / Poktan</label>
+              <input type="text" class="form-control" id="newFarmerName" placeholder="Contoh: Pak Ramlan" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Nomor WhatsApp / HP</label>
+              <input type="text" class="form-control" id="newFarmerPhone" placeholder="0812-xxxx-xxxx">
+            </div>
+            <div class="form-group col-span-2">
+              <label class="form-label">Lokasi Lahan Kebun</label>
+              <input type="text" class="form-control" id="newFarmerLocation" placeholder="Contoh: Afdeling 2 / KM 12">
+            </div>
+            <div class="form-group col-span-2">
+              <label class="form-label">Saldo Kasbon Awal (Jika Ada - Rp)</label>
+              <input type="number" class="form-control" id="newFarmerInitDebt" value="0">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-outline" onclick="closeModal('modalTambahPetani')">Batal</button>
+          <button type="submit" class="btn-primary">💾 Daftarkan Petani</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL: CETAK NOTA / SLIP TIMBANG PETANI -->
+  <!-- ======================================================== -->
+  <div class="modal-overlay" id="modalPrintSlip">
+    <div class="modal-card" style="max-width:480px;">
+      <div class="modal-header">
+        <div class="modal-title"><span>🧾</span> Struk Nota Timbang TBS</div>
+        <button class="btn-close-modal" onclick="closeModal('modalPrintSlip')">&times;</button>
+      </div>
+      <div class="modal-body" style="background:#f8fafc;">
+        <div class="slip-receipt-wrapper" id="slipContent">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-outline" onclick="closeModal('modalPrintSlip')">Tutup</button>
+        <button type="button" class="btn-primary" onclick="printReceiptDirect()">🖨️ Cetak Struk (Thermal / A4)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- HIDDEN PRINTABLE CONTAINER FOR BROWSER PRINT -->
+  <div id="printableArea" style="display:none;"></div>
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- APPLICATION CORE LOGIC SCRIPT -->
+  <script src="app.js"></script>
+</body>
+</html>
